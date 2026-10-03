@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Senu - Forever & Always ❤️</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px 15px 40px 15px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            overflow-y: auto;
+            touch-action: pan-y;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+
+        /* 1. සුළඟට සෙමින් පැද්දෙන පසුබිම් රූපය */
+        .wind-bg {
+            position: fixed;
+            top: -5%;
+            left: -5%;
+            width: 110vw;
+            height: 110vh;
+            background-image: url('4.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            animation: windDriftBg 16s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        @keyframes windDriftBg {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.03) translate(-1.5%, 1%); }
+            100% { transform: scale(1.05) translate(1.5%, -1%); }
+        }
+
+        /* 2. සුළඟට පාවෙන මල් පෙති */
+        .breeze-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .petal {
+            position: absolute;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0;
+            animation: windBreeze 7s linear forwards;
+        }
+
+        @keyframes windBreeze {
+            0% {
+                opacity: 0;
+                transform: translate(-10vw, 0) rotate(0deg) scale(0.6);
+            }
+            15% { opacity: 0.85; }
+            50% {
+                opacity: 0.9;
+                transform: translate(50vw, -15vh) rotate(160deg) scale(1);
+            }
+            85% { opacity: 0.8; }
+            100% {
+                opacity: 0;
+                transform: translate(110vw, 5vh) rotate(340deg) scale(0.8);
+            }
+        }
+
+        /* ඉහළ මාතෘකාව */
+        .header-title {
+            text-align: center;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 22px;
+            border-radius: 25px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .header-title h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #4a0e2e;
+            font-weight: bold;
+        }
+
+        .header-title p {
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: #ff3366;
+            font-weight: 600;
+        }
+
+        /* 3D Scene Viewport */
+        .scene-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+            padding: 20px 0;
+            user-select: none;
+            -webkit-user-select: none;
+            z-index: 10;
+            touch-action: none; /* Drag කරන විට browser scroll නොවී 3D rotate වීමට */
+        }
+
+        /* අතින් කරකැවිය හැකි 3D Card එක */
+        .interactive-card {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: grab;
+            transition: transform 0.12s ease-out;
+            will-change: transform;
+            opacity: 0;
+            transform: translateY(50px) scale(0.85);
+        }
+
+        /* මුලින් පැමිණෙන Transition Animation එක */
+        .interactive-card.animate-in {
+            animation: cardReveal 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes cardReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(60px) scale(0.85);
+                filter: blur(6px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .interactive-card:active {
+            cursor: grabbing;
+        }
+
+        .card-inner {
+            display: inline-block;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+           
+            line-height: 0;
+            pointer-events: none; /* Drag එක Card Container එකට සෘජුව ලැබීමට */
+        }
+
+        /* Photo එකෙහි Original Size සහ Aspect Ratio එක ආරක්ෂා වීම */
+        .card-inner img {
+            max-width: 88vw;
+            max-height: 55vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+            border-radius: 16px;
+        }
+
+        .card-glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 60%);
+            pointer-events: none;
+            border-radius: 16px;
+        }
+
+        /* පහළ Download Section එක */
+        .download-panel {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            z-index: 20;
+        }
+
+        .btn-download-main {
+            width: 100%;
+            background-color: #ff3366;
+            color: #ffffff;
+            padding: 13px 20px;
+            border-radius: 28px;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 18px rgba(255, 51, 102, 0.45);
+            transition: transform 0.2s, background-color 0.2s;
+            box-sizing: border-box;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-download-main:hover {
+            background-color: #e62055;
+            transform: scale(1.03);
+        }
+
+        .btn-more-downloads {
+            background: rgba(255, 255, 255, 0.3);
+            color: #4a0e2e;
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-more-downloads:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.03);
+        }
+
+        /* අමතර Photos බාගත කරන Modal එක */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 12, 16, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 22px;
+            width: 100%;
+            max-width: 360px;
+            max-height: 80vh;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333333;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eeeeee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #ff3366;
+        }
+
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: #888888;
+            line-height: 1;
+        }
+
+        .download-list {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+        }
+
+        .dl-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #fdf2f4;
+            border-radius: 12px;
+        }
+
+        .dl-item span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a0e2e;
+        }
+
+        .dl-btn-small {
+            background: #ff3366;
+            color: #ffffff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .footer-note {
+            font-size: 12px;
+            color: #6f133d;
+            margin-top: 10px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wind-bg"></div>
+    <div class="breeze-particles" id="breezeParticles"></div>
+
+    <audio id="bgMusic" src="H music.mp3" preload="auto" loop></audio>
+
+    <div class="header-title">
+        <h2>Happy Birthday Senu! 🎂❤️</h2>
+        <p>ස්පර්ශ කර කැමති ලෙස කරකවා බලන්න ✨</p>
+    </div>
+
+    <!-- 3D Scene Viewport -->
+    <div class="scene-container" id="sceneContainer">
+        <div class="interactive-card animate-in" id="card3d">
+            <div class="card-inner">
+                <img src="Wish post.png" alt="Special Letter for Senu">
+                <div class="card-glare"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- පහළ Download Panel එක -->
+    <div class="download-panel">
+        <button class="btn-download-main" onclick="downloadImage('Wish post.png', 'Senu_Birthday_Letter.png')">
+            📥 මේ ලියුම Download කරගන්න
+        </button>
+
+        <button class="btn-more-downloads" onclick="openDownloadModal()">
+            🎁 අනෙකුත් සියලු ඡායාරූප බලන්න
+        </button>
+
+        <div class="footer-note">අවසාන වශයෙන් සමාවෙන්න Birthday එක දවසෙම ඔයාව බලන්න එන්න බැරෙවෙයි. එත් පුලුවන් තරම් ඉක්මනට මගෙ මැනිකව බලන්න මම එනවා...</div>
+    </div>
+
+    <!-- Modal Box -->
+    <div class="modal-overlay" id="downloadModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>ඡායාරූප මතකයන් 📸</h3>
+                <span class="close-modal" onclick="closeDownloadModal()">&times;</span>
+            </div>
+            <div class="download-list">
+                <div class="dl-item">
+                    <span>පොතේ සුබපැතුම් පත 💌</span>
+                    <button class="dl-btn-small" onclick="downloadImage('page S.png', 'Wish_Card.png')">බාගන්න</button>
+                </div>
+                <div class="dl-item">
+                    <span>කේක් සුබපැතුම 🎂</span>
+                    <button class="dl-btn-small" onclick="downloadImage('b wish 2.png', 'Cake_Wish.png')">බාගන්න</button>
+                </div>
+                <div class="dl-item">
+                    <span>මල් මතකයන් 🌸</span>
+                    <button class="dl-btn-small" onclick="downloadImage('F 1.png', 'Memory_1.png')">බාගන්න</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Audio Persistence & Resume ---
+        const bgMusic = document.getElementById('bgMusic');
+
+        function playMusicSafely() {
+            if (bgMusic.paused) {
+                const savedTime = localStorage.getItem('musicCurrentTime');
+                if (savedTime && !isNaN(parseFloat(savedTime))) {
+                    bgMusic.currentTime = parseFloat(savedTime);
+                }
+                bgMusic.play().then(() => {
+                    localStorage.setItem('musicPlaying', 'true');
+                }).catch(() => {
+                    const resumeOnInteraction = () => {
+                        bgMusic.play().catch(() => {});
+                        localStorage.setItem('musicPlaying', 'true');
+                    };
+                    window.addEventListener('click', resumeOnInteraction, { once: true });
+                    window.addEventListener('touchstart', resumeOnInteraction, { once: true });
+                });
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            playMusicSafely();
+            startBreezeEffect();
+        });
+
+        window.addEventListener('touchstart', () => {
+            if (bgMusic.paused) bgMusic.play().catch(() => {});
+        }, { once: true });
+
+        window.addEventListener('click', () => {
+            if (bgMusic.paused) bgMusic.play().catch(() => {});
+        }, { once: true });
+
+        bgMusic.addEventListener('timeupdate', () => {
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+        });
+
+        // --- 2. සුළඟේ පාවෙන මල් පෙති ---
+        function startBreezeEffect() {
+            const container = document.getElementById('breezeParticles');
+            const items = ['🌸', '🍃', '✨', '🤍', '🌸'];
+
+            setInterval(() => {
+                const petal = document.createElement('div');
+                petal.classList.add('petal');
+                petal.innerText = items[Math.floor(Math.random() * items.length)];
+
+                petal.style.top = (Math.random() * 85 + 5) + 'vh';
+                petal.style.fontSize = (Math.random() * 12 + 12) + 'px';
+                petal.style.animationDuration = (Math.random() * 3 + 5.5) + 's';
+
+                container.appendChild(petal);
+
+                setTimeout(() => petal.remove(), 8500);
+            }, 600);
+        }
+
+        // --- 3. සජීවී 3D Touch / Drag Rotation Mechanics (Fully Restored) ---
+        const card = document.getElementById('card3d');
+        const scene = document.getElementById('sceneContainer');
+
+        // Entrance animation එක අවසන් වූ පසු class එක ඉවත් කර drag කිරීමට ඉඩ දීම
+        card.addEventListener('animationend', () => {
+            card.classList.remove('animate-in');
+            card.style.opacity = '1';
+            card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let currentRotX = 0, currentRotY = 0;
+        let targetRotX = 0, targetRotY = 0;
+
+        function onPointerStart(e) {
+            isDragging = true;
+            const point = e.touches ? e.touches[0] : e;
+            startX = point.clientX;
+            startY = point.clientY;
+            card.classList.remove('animate-in');
+            card.style.opacity = '1';
+            if (bgMusic.paused) bgMusic.play().catch(() => {});
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            const point = e.touches ? e.touches[0] : e;
+            const deltaX = point.clientX - startX;
+            const deltaY = point.clientY - startY;
+
+            targetRotY = Math.max(-50, Math.min(50, currentRotY + deltaX * 0.45));
+            targetRotX = Math.max(-50, Math.min(50, currentRotX - deltaY * 0.45));
+
+            card.style.transform = `rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) scale(1.05)`;
+            
+            if (e.cancelable) e.preventDefault();
+        }
+
+        function onPointerEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            currentRotX = targetRotX;
+            currentRotY = targetRotY;
+
+            // ඇඟිල්ල මුදාහළ පසු මෘදුව මධ්‍යයට පැමිණීම
+            setTimeout(() => {
+                targetRotX = 0;
+                targetRotY = 0;
+                currentRotX = 0;
+                currentRotY = 0;
+                card.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+            }, 700);
+        }
+
+        // Mouse Events
+        scene.addEventListener('mousedown', onPointerStart);
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerEnd);
+
+        // Mobile Touch Events
+        scene.addEventListener('touchstart', onPointerStart, { passive: false });
+        window.addEventListener('touchmove', onPointerMove, { passive: false });
+        window.addEventListener('touchend', onPointerEnd);
+
+        // --- 4. Mobile Download Handler ---
+        async function downloadImage(imageSrc, fileName) {
+            try {
+                const response = await fetch(imageSrc);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (err) {
+                const link = document.createElement('a');
+                link.href = imageSrc;
+                link.download = fileName;
+                link.target = "_blank";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // --- 5. Modal Functions ---
+        function openDownloadModal() {
+            document.getElementById('downloadModal').style.display = 'flex';
+        }
+
+        function closeDownloadModal() {
+            document.getElementById('downloadModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('downloadModal');
+            if (event.target === modal) {
+                closeDownloadModal();
+            }
+        };
+    </script>
+
+</body>
+</html>

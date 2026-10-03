@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Senu...</title>
+    <link rel="icon" type="image/png" href="5.png">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            box-sizing: border-box;
+            touch-action: manipulation;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* 1. සුළඟට සෙමින් පැද්දෙන පසුබිම (Gentle Wind Ambient Sway) */
+        .wind-bg {
+            position: fixed;
+            top: -5%;
+            left: -5%;
+            width: 110vw;
+            height: 110vh;
+            background-image: url('5.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            animation: windDriftBg 16s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        @keyframes windDriftBg {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+            50% {
+                transform: scale(1.03) translate(-1.2%, 0.8%);
+            }
+            100% {
+                transform: scale(1.02) translate(1.2%, -0.8%);
+            }
+        }
+
+        /* 2. සුළඟේ පාවෙන කඩදාසි අහස්යාත්‍රා සහ ආදරණීය අංශු */
+        .breeze-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .breeze-item {
+            position: absolute;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0;
+            animation: windDriftItem 7.5s linear forwards;
+        }
+
+        @keyframes windDriftItem {
+            0% {
+                opacity: 0;
+                transform: translate(-10vw, 0) rotate(-10deg) scale(0.6);
+            }
+            15% {
+                opacity: 0.85;
+            }
+            50% {
+                opacity: 0.9;
+                transform: translate(50vw, -12vh) rotate(15deg) scale(1);
+            }
+            85% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(110vw, 5vh) rotate(35deg) scale(0.75);
+            }
+        }
+
+        /* Heart Transition Fullscreen Overlay */
+        .page-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99999;
+            overflow: hidden;
+        }
+
+        .transition-heart {
+            position: absolute;
+            bottom: -70px;
+            user-select: none;
+            animation: burstUpSlow 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes burstUpSlow {
+            0% {
+                transform: translateY(0) scale(0.6);
+                opacity: 0.2;
+            }
+            25% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-125vh) scale(2.6);
+                opacity: 1;
+            }
+        }
+
+        /* ඉහළ ඇති කුඩා උපදෙස් පණිවිඩය */
+        .tap-hint {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5c3a21;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+
+        /* 3. දෙදෙනාට ඉහළින් මැදින් මතුවන ඡායාරූප Container එක */
+        .floating-photo-wrapper {
+            position: fixed;
+            top: 26%; /* බැල්කනි වල සිටින දෙදෙනාට ඉහළින් මැද පිහිටීම */
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Click කළ විට පින්තූරය මතු වීම */
+        .floating-photo-wrapper.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* පින්තූරය මෘදුව දෙපසට පැද්දෙන (Gentle Floating Sway) Animation එක */
+        .floating-photo-wrapper.show .sway-box {
+            animation: gentleFloatSway 4.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes gentleFloatSway {
+            0% {
+                transform: translateY(0px) rotate(-3deg) scale(1);
+            }
+            50% {
+                transform: translateY(-10px) rotate(1deg) scale(1.02);
+            }
+            100% {
+                transform: translateY(4px) rotate(3deg) scale(1);
+            }
+        }
+
+        .sway-box {
+            max-width: 82vw;
+            max-height: 38vh;
+           
+            overflow: hidden;
+           
+            
+        }
+
+        .sway-box img {
+            width: 100%;
+            height: 100%;
+            max-height: 38vh;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 4. පහළින් පිහිටන Next Button එක */
+        .bottom-bar {
+            position: fixed;
+            bottom: 25px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 30;
+        }
+
+        .btn-next-page {
+            background-color: #ff3366;
+            color: #ffffff;
+            border: none;
+            padding: 12px 38px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 6px 18px rgba(255, 51, 102, 0.45);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-next-page:hover {
+            background-color: #e62055;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body id="pageBody">
+
+    <!-- සුළඟට පැද්දෙන Background ස්තරය -->
+    <div class="wind-bg"></div>
+
+    <!-- සුළඟේ පාවෙන අංශු -->
+    <div class="breeze-particles" id="breezeParticles"></div>
+
+    <!-- අඛණ්ඩ පසුබිම් සංගීතය -->
+    <audio id="bgMusic" src="H music.mp3" preload="auto" loop></audio>
+
+    <!-- Transition Hearts සඳහා Overlay එක -->
+    <div class="page-transition-overlay" id="transitionOverlay"></div>
+
+    <!-- ඉහළ උපදෙස් Text එක -->
+    <div class="tap-hint" id="tapHint">තිරය මත click කරන්න ✨</div>
+
+    <!-- දෙදෙනාට ඉහළින් පාවෙමින් මතුවන ඡායාරූපය -->
+    <div class="floating-photo-wrapper" id="photoWrapper">
+        <div class="sway-box">
+            <!-- ඔබ කැමති photo එකේ නම මෙතනට ලබා දෙන්න -->
+            <img src="m2.png" alt="Sweet Memory">
+        </div>
+    </div>
+
+    <!-- පහළ Next බොත්තම -->
+    <div class="bottom-bar">
+        <button class="btn-next-page" onclick="goToNextPage(event)">Next ➡️</button>
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+
+        // Music Persistence
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTime = localStorage.getItem('musicCurrentTime');
+            if (savedTime) bgMusic.currentTime = parseFloat(savedTime);
+
+            if (localStorage.getItem('musicPlaying') === 'true') {
+                bgMusic.play().catch(() => {});
+            }
+
+            startBreezeParticles();
+        });
+
+        bgMusic.addEventListener('timeupdate', () => {
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+        });
+
+        function ensureMusicPlaying() {
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    localStorage.setItem('musicPlaying', 'true');
+                }).catch(() => {});
+            }
+        }
+
+        // සුළඟේ පාවෙන කඩදාසි අහස්යාත්‍රා හා ආදරණීය අංශු
+        function startBreezeParticles() {
+            const container = document.getElementById('breezeParticles');
+            const items = ['✈️', '🤍', '✨', '💌', '🌸', '✨'];
+
+            setInterval(() => {
+                const item = document.createElement('div');
+                item.classList.add('breeze-item');
+                item.innerText = items[Math.floor(Math.random() * items.length)];
+
+                item.style.top = (Math.random() * 80 + 10) + 'vh';
+                item.style.fontSize = (Math.random() * 12 + 12) + 'px';
+                item.style.animationDuration = (Math.random() * 3 + 6) + 's';
+
+                container.appendChild(item);
+
+                setTimeout(() => {
+                    item.remove();
+                }, 8500);
+            }, 750);
+        }
+
+        // තිරයේ කොහේ click කළත් ඡායාරූපය මතු වීම
+        const photoWrapper = document.getElementById('photoWrapper');
+        const tapHint = document.getElementById('tapHint');
+
+        function triggerPhoto(e) {
+            // Next button එක click කරන විට photo toggle නොවීමට
+            if (e.target.closest('.btn-next-page')) return;
+
+            ensureMusicPlaying();
+            photoWrapper.classList.toggle('show');
+            tapHint.style.opacity = '0';
+        }
+
+        document.body.addEventListener('click', triggerPhoto);
+        document.body.addEventListener('touchstart', triggerPhoto, { passive: true });
+
+        // Slow Heart Transition මඟින් ඊළඟ පිටුවට යාම
+        function goToNextPage(e) {
+            e.stopPropagation();
+            ensureMusicPlaying();
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+            localStorage.setItem('musicPlaying', 'true');
+
+            const transitionOverlay = document.getElementById('transitionOverlay');
+            const heartIcons = ['❤️', '💖', '💕', '💓', '💗'];
+            const totalBurstHearts = 65;
+
+            for (let i = 0; i < totalBurstHearts; i++) {
+                const tHeart = document.createElement('div');
+                tHeart.classList.add('transition-heart');
+                tHeart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                tHeart.style.left = (Math.random() * 100) + 'vw';
+                tHeart.style.fontSize = (Math.random() * 32 + 24) + 'px';
+                tHeart.style.animationDelay = (Math.random() * 0.5) + 's';
+                tHeart.style.animationDuration = (Math.random() * 0.4 + 1.2) + 's';
+                transitionOverlay.appendChild(tHeart);
+            }
+
+            // ඊළඟට යන පිටුවේ HTML නම ලබා දෙන්න (උදා: final.html)
+            setTimeout(() => {
+                window.location.href = "05.html";
+            }, 1400);
+        }
+    </script>
+
+</body>
+</html>

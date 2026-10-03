@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Blow the Candles - Happy Birthday Senu!</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-align: center;
+            color: #ffffff;
+            touch-action: manipulation;
+            transition: background 1.2s ease;
+        }
+
+        body.pink-bg {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 60%, #ffdde1 100%) !important;
+        }
+
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 55;
+        }
+
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 40;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -50px;
+            color: #ff3366;
+            user-select: none;
+            animation: floatUp 4.5s linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) translateX(0) scale(0.6) rotate(0deg); opacity: 0.9; }
+            30% { transform: translateY(-30vh) translateX(35px) scale(0.9) rotate(20deg); }
+            60% { transform: translateY(-65vh) translateX(-35px) scale(1.1) rotate(-20deg); }
+            100% { transform: translateY(-115vh) translateX(20px) scale(1.2) rotate(15deg); opacity: 0; }
+        }
+
+        /* Heart Burst Fullscreen Overlay */
+        .page-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99999;
+            overflow: hidden;
+        }
+
+        .transition-heart {
+            position: absolute;
+            bottom: -60px;
+            user-select: none;
+            animation: burstUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes burstUp {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0.2;
+            }
+            30% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120vh) scale(2.5);
+                opacity: 1;
+            }
+        }
+
+        .title-text {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            color: #6f133d;
+            padding: 9px 20px;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+
+        .cake-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+            transition: transform 0.8s ease, opacity 0.8s ease;
+            z-index: 10;
+        }
+
+        .cake-container.hide-cake {
+            transform: translateY(120px) scale(0.7);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cake-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: none;
+            display: block;
+        }
+
+        .candle-spot {
+            position: absolute;
+            width: 38px;
+            height: 52px;
+            cursor: pointer;
+            z-index: 50;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .flame {
+            width: 14px;
+            height: 24px;
+            background: radial-gradient(ellipse at bottom, #ffffff 0%, #ffe600 45%, #ff3b00 90%);
+            border-radius: 50% 50% 35% 35% / 60% 60% 40% 40%;
+            box-shadow: 0 0 10px #ff9900, 0 0 18px #ff3700;
+            animation: flicker 0.15s infinite alternate ease-in-out;
+            transform-origin: bottom center;
+            pointer-events: none;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); opacity: 0.95; }
+            100% { transform: scale(1.08) rotate(2deg); opacity: 1; }
+        }
+
+        .extinguished-mask {
+            display: none;
+            position: absolute;
+            width: 22px;
+            height: 34px;
+            background: #ffffff;
+            border-radius: 50%;
+            filter: blur(1.5px);
+        }
+
+        .wick {
+            display: none;
+            position: absolute;
+            bottom: 5px;
+            width: 3px;
+            height: 9px;
+            background-color: #222222;
+            border-radius: 2px;
+        }
+
+        .candle-spot.blown .flame { display: none !important; }
+        .candle-spot.blown .extinguished-mask,
+        .candle-spot.blown .wick { display: block; }
+
+        .smoke {
+            display: none;
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            background: rgba(160, 160, 160, 0.75);
+            border-radius: 50%;
+        }
+
+        .candle-spot.blown .smoke {
+            display: block;
+            animation: riseSmoke 0.9s forwards ease-out;
+        }
+
+        @keyframes riseSmoke {
+            0% { opacity: 0.9; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(3); filter: blur(4px); }
+        }
+
+        #candle1 { top: 13.0%; left: 32.2%; }
+        #candle2 { top: 14.5%; left: 38.6%; }
+        #candle3 { top: 12.0%; left: 45.4%; }
+        #candle4 { top: 14.8%; left: 50.8%; }
+        #candle5 { top: 13.8%; left: 57.0%; }
+        #candle6 { top: 14.2%; left: 62.4%; }
+        #candle7 { top: 16.0%; left: 67.5%; }
+
+        .surprise-wrapper {
+            display: none;
+            position: absolute;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+            width: 100%;
+            perspective: 1200px;
+        }
+
+        /* Original size එක රැකෙන Flip Photo Container එක */
+        .flip-container {
+            display: inline-block;
+            max-width: 90vw;
+            max-height: 65vh;
+            transform: translateY(100vh);
+            opacity: 0;
+            transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease;
+        }
+
+        .surprise-wrapper.show-photo .flip-container {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .flip-inner {
+            position: relative;
+            display: grid;
+            grid-template-areas: "card";
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-inner.is-flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            grid-area: card;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-back { transform: rotateY(180deg); }
+
+        /* Photo එකෙහි නියම Original Size සහ Aspect Ratio එක ආරක්ෂා වීම */
+        .card-photo {
+            max-width: 90vw;
+            max-height: 65vh;
+            width: auto;
+            height: auto;
+			border-radius: 22px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            width: 85%;
+            max-width: 310px;
+            margin-top: 15px;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .surprise-wrapper.show-photo .btn-group {
+            opacity: 1;
+            transform: scale(1);
+            transition-delay: 0.6s;
+        }
+
+        .btn-flip {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.85);
+            color: #d81b60;
+            border: 2px solid #ffffff;
+            padding: 11px 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-flip:hover { background-color: #ffffff; transform: scale(1.03); }
+
+        .btn-next-page {
+            flex: 1;
+            background-color: #ff3366;
+            color: #ffffff;
+            border: none;
+            padding: 11px 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 6px 16px rgba(255, 51, 102, 0.45);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-next-page:hover { background-color: #e62055; transform: scale(1.03); }
+    </style>
+</head>
+
+<body id="pageBody">
+
+    <audio id="bgMusic" src="H music.mp3" preload="auto" loop></audio>
+
+    <canvas id="fireworksCanvas"></canvas>
+    <div class="hearts-container" id="heartsContainer"></div>
+    <div class="page-transition-overlay" id="transitionOverlay"></div>
+
+    <div class="title-text" id="titleText">ඉටිපන්දම් ටික නිවලා ඉන්නකෝ...️️</div>
+
+    <div class="cake-container" id="cakeBox">
+        <img src="cack 1 2.png" alt="Birthday Cake" class="cake-img">[cite: 1]
+
+        <div class="candle-spot" id="candle1"><div class="flame"></div><div class="extinguished-mask"></div><div class="wick"></div><div class="smoke"></div></div>
+        <div class="candle-spot" id="candle2"><div class="flame"></div><div class="extinguished-mask"></div><div class="wick"></div><div class="smoke"></div></div>
+        <div class="candle-spot" id="candle3"><div class="flame"></div><div class="extinguished-mask"></div><div class="wick"></div><div class="smoke"></div></div>
+        <div class="candle-spot" id="candle4"><div class="flame"></div><div class="extinguished-mask"></div><div class="wick"></div><div class="smoke"></div></div>
+        <div class="candle-spot" id="candle5"><div class="flame"></div><div class="extinguished-mask"></div><div class="wick"></div><div class="smoke"></div></div>
+        <div class="candle-spot" id="candle6"><div class="flame"></div><div class="extinguished-mask"></div><div class="wick"></div><div class="smoke"></div></div>
+        <div class="candle-spot" id="candle7"><div class="flame"></div><div class="extinguished-mask"></div><div class="wick"></div><div class="smoke"></div></div>
+    </div>
+
+    <div class="surprise-wrapper" id="surpriseWrap">
+        <div class="flip-container">
+            <div class="flip-inner" id="cardInner">
+                <div class="card-face card-front">
+                    <img src="b wish 2.png" alt="Birthday Surprise" class="card-photo">
+                </div>
+                <div class="card-face card-back">
+                    <img src="b wish.png" alt="Birthday Surprise 2" class="card-photo">
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-flip" id="flipBtn" onclick="toggleFlipCard()">Sinhala</button>
+            <button class="btn-next-page" onclick="goToNextPage()">ඊළඟට</button>
+        </div>
+    </div>
+
+    <script>
+        let blownCount = 0;
+        const totalCandles = 7;
+        const bgMusic = document.getElementById('bgMusic');
+
+        // Music එක කලින් වෙලාවේ සිට අඛණ්ඩව Play කිරීමේ Logic එක
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTime = localStorage.getItem('musicCurrentTime');
+            if (savedTime) bgMusic.currentTime = parseFloat(savedTime);
+
+            if (localStorage.getItem('musicPlaying') === 'true') {
+                bgMusic.play().catch(() => {});
+            }
+        });
+
+        // හැම තත්පරයකදීම Music එකේ වෙලාව update කර තබා ගැනීම
+        bgMusic.addEventListener('timeupdate', () => {
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+        });
+
+        const cakeBox = document.getElementById('cakeBox');
+        const titleText = document.getElementById('titleText');
+        const surpriseWrap = document.getElementById('surpriseWrap');
+        const pageBody = document.getElementById('pageBody');
+        const heartsContainer = document.getElementById('heartsContainer');
+        const transitionOverlay = document.getElementById('transitionOverlay');
+
+        document.querySelectorAll('.candle-spot').forEach(candle => {
+            const handleBlow = function(e) {
+                if (e.type === 'touchstart') e.preventDefault();
+
+                if (bgMusic.paused) {
+                    bgMusic.play().then(() => {
+                        localStorage.setItem('musicPlaying', 'true');
+                    }).catch(() => {});
+                }
+
+                if (candle.classList.contains('blown')) return;
+
+                candle.classList.add('blown');
+                blownCount++;
+
+                if (blownCount === totalCandles) {
+                    setTimeout(() => {
+                        cakeBox.classList.add('hide-cake');
+                        titleText.style.opacity = '0';
+
+                        pageBody.classList.add('pink-bg');
+                        startFloatingHearts();
+                        startFireworks();
+
+                        setTimeout(() => {
+                            cakeBox.style.display = 'none';
+                            titleText.style.display = 'none';
+                            surpriseWrap.style.display = 'flex';
+                            
+                            setTimeout(() => {
+                                surpriseWrap.classList.add('show-photo');
+                            }, 50);
+                        }, 600);
+
+                    }, 500);
+                }
+            };
+
+            candle.addEventListener('click', handleBlow);
+            candle.addEventListener('touchstart', handleBlow, { passive: false });
+        });
+
+        function toggleFlipCard() {
+            const cardInner = document.getElementById('cardInner');
+            const flipBtn = document.getElementById('flipBtn');
+            cardInner.classList.toggle('is-flipped');
+            flipBtn.innerText = cardInner.classList.contains('is-flipped') ? "English" : "Sinhala";
+        }
+
+        function startFloatingHearts() {
+            const heartIcons = ['❤️', '💖', '💕', '💗', '💓', '✨'];
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('floating-heart');
+                heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                heart.style.left = Math.random() * 95 + 'vw';
+                heart.style.fontSize = (Math.random() * 18 + 18) + 'px';
+                heart.style.animationDuration = (Math.random() * 2 + 3.5) + 's';
+                heartsContainer.appendChild(heart);
+
+                setTimeout(() => heart.remove(), 5000);
+            }, 300);
+        }
+
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createFirework(x, y) {
+            const colors = ['#ff1744', '#ff4081', '#ffd700', '#00e676', '#00e5ff', '#ffffff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const particleCount = 35;
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 / particleCount) * i;
+                const speed = Math.random() * 4 + 2;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: color,
+                    alpha: 1,
+                    decay: Math.random() * 0.02 + 0.015,
+                    size: Math.random() * 3 + 2
+                });
+            }
+        }
+
+        function animateFireworks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.04;
+                p.alpha -= p.decay;
+
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                if (p.alpha <= 0) particles.splice(index, 1);
+            });
+            requestAnimationFrame(animateFireworks);
+        }
+
+        function startFireworks() {
+            animateFireworks();
+            setInterval(() => {
+                const x = Math.random() * (canvas.width * 0.8) + (canvas.width * 0.1);
+                const y = Math.random() * (canvas.height * 0.5) + (canvas.height * 0.1);
+                createFirework(x, y);
+            }, 650);
+        }
+
+        // Heart Burst Animation මඟින් 01.html වෙත යාම
+        function goToNextPage() {
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+            localStorage.setItem('musicPlaying', 'true');
+
+            const heartIcons = ['❤️', '💖', '💕', '💓', '💗'];
+            const totalBurstHearts = 70;
+
+            for (let i = 0; i < totalBurstHearts; i++) {
+                const tHeart = document.createElement('div');
+                tHeart.classList.add('transition-heart');
+                tHeart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                tHeart.style.left = (Math.random() * 100) + 'vw';
+                tHeart.style.fontSize = (Math.random() * 32 + 26) + 'px';
+                tHeart.style.animationDelay = (Math.random() * 0.3) + 's';
+                tHeart.style.animationDuration = (Math.random() * 0.4 + 0.6) + 's';
+                transitionOverlay.appendChild(tHeart);
+            }
+
+            setTimeout(() => {
+                window.location.href = "01.html";
+            }, 800);
+        }
+    </script>
+
+</body>
+</html>

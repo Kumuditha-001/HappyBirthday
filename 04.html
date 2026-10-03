@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Senu...</title>
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #121316;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none; /* Mobile එකේ scroll/zoom මුළුමනින්ම නවතා touch සුමට කරයි */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Heart Transition Fullscreen Overlay */
+        .page-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99999;
+            overflow: hidden;
+        }
+
+        .transition-heart {
+            position: absolute;
+            bottom: -70px;
+            user-select: none;
+            animation: burstUpSlow 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes burstUpSlow {
+            0% { transform: translateY(0) scale(0.6); opacity: 0.2; }
+            25% { opacity: 1; }
+            100% { transform: translateY(-125vh) scale(2.6); opacity: 1; }
+        }
+
+        /* ප්‍රධාන කාමර Container එක (Mobile Screen එකට 100% ගැළපීම) */
+        .room-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-image: url('s9.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center top;
+        }
+
+        /* අඳුරු Shadow Overlay එක */
+        .dark-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(8, 10, 14, 0.88);
+            pointer-events: none;
+        }
+
+        /* සුදු / ලා කහ Spotlight ආලෝකය */
+        .spotlight {
+            position: absolute;
+            width: clamp(260px, 68vw, 360px);
+            height: clamp(260px, 68vw, 360px);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 245, 0.95) 0%, rgba(255, 250, 215, 0.55) 45%, rgba(255, 245, 195, 0.15) 70%, rgba(255, 245, 195, 0) 100%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            transition: left 0.15s ease-out, top 0.15s ease-out;
+            filter: blur(8px);
+            z-index: 5;
+        }
+
+        /* Mobile එකේ ලාම්පුවේ Pivot කේන්ද්‍රය */
+        .lamp-pivot {
+            position: absolute;
+            top: 36%;
+            right: 8%;
+            width: 60px;
+            height: 60px;
+            transform-origin: 75% 30%;
+            transition: transform 0.2s ease-out;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .lamp-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+        }
+
+        /* විසිරුණු ඡායාරූප රාමු (Mobile Responsive Size) */
+        .frame-item {
+            position: absolute;
+            width: clamp(75px, 20vw, 95px);
+            height: clamp(75px, 20vw, 95px);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+            cursor: pointer;
+            opacity: 0.15;
+            filter: brightness(0.2) blur(1.5px);
+            z-index: 10;
+        }
+
+        .frame-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* ලයිට් එක වැටුණු විට ලා නිල් Border Glow එක */
+        .frame-item.lit {
+            opacity: 1 !important;
+            filter: brightness(1.15) contrast(1.05) blur(0px) !important;
+            border: 3px solid #80d8ff !important;
+            box-shadow: 0 0 22px rgba(64, 196, 255, 0.9), 0 8px 18px rgba(0, 0, 0, 0.6) !important;
+            transform: scale(1.08) !important;
+        }
+
+        /* පහළ Dashboard Bar එක (Mobile Compact) */
+        .bottom-bar {
+            position: fixed;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 14px;
+            box-sizing: border-box;
+            z-index: 40;
+            pointer-events: none;
+        }
+
+        .counter-badge {
+            background: rgba(18, 22, 30, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(128, 216, 255, 0.4);
+            color: #80d8ff;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 7px 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            pointer-events: auto;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            pointer-events: auto;
+        }
+
+        .btn-view-all {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .btn-view-all:active {
+            transform: scale(0.96);
+        }
+
+        .btn-next {
+            background-color: #ff3366;
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(255, 51, 102, 0.5);
+            transition: transform 0.2s;
+        }
+
+        .btn-next:active {
+            transform: scale(0.96);
+        }
+
+        /* Modal Gallery එක */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 12, 16, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: rgba(25, 30, 40, 0.92);
+            border: 1px solid rgba(128, 216, 255, 0.4);
+            border-radius: 20px;
+            width: 95%;
+            max-width: 340px;
+            max-height: 75vh;
+            display: flex;
+            flex-direction: column;
+            padding: 18px;
+            box-sizing: border-box;
+            color: #ffffff;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #80d8ff;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffffff;
+            padding: 0 6px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .gallery-item {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #80d8ff;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <audio id="bgMusic" src="H music.mp3" preload="auto" loop></audio>
+
+    <div class="page-transition-overlay" id="transitionOverlay"></div>
+
+    <div class="room-container" id="roomContainer">
+        <div class="dark-overlay"></div>
+        <div class="spotlight" id="spotlight"></div>
+
+        <div class="lamp-pivot" id="lampPivot">
+            <img src="lamp.png" alt="Lamp" class="lamp-img" onerror="this.style.display='none'">
+        </div>
+
+        <!-- Mobile Safe Area එක තුළ විසිරුවා ඇති ඡායාරූප 7 (තිරයෙන් එළියට නොයන සේ සකසා ඇත) -->
+        <div class="frame-item" data-id="1" style="top: 14%; left: 8%; transform: rotate(-5deg);">
+            <img src="photo1.png" alt="Photo 1">
+        </div>
+        <div class="frame-item" data-id="2" style="top: 20%; left: 45%; transform: rotate(4deg);">
+            <img src="photo 2.png" alt="Photo 2">
+        </div>
+        <div class="frame-item" data-id="3" style="top: 38%; left: 10%; transform: rotate(5deg);">
+            <img src="photo 3.png" alt="Photo 3">
+        </div>
+        <div class="frame-item" data-id="4" style="top: 48%; left: 38%; transform: rotate(-3deg);">
+            <img src="photo 4.png" alt="Photo 4">
+        </div>
+        <div class="frame-item" data-id="5" style="top: 58%; left: 10%; transform: rotate(-6deg);">
+            <img src="photo 5.png" alt="Photo 5">
+        </div>
+        <div class="frame-item" data-id="6" style="top: 68%; left: 42%; transform: rotate(5deg);">
+            <img src="photo 6.png" alt="Photo 6">
+        </div>
+        <div class="frame-item" data-id="7" style="top: 55%; left: 70%; transform: rotate(-4deg);">
+            <img src="photo 7.png" alt="Photo 7">
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Dashboard -->
+    <div class="bottom-bar">
+        <div class="counter-badge" id="counterBadge">සොයාගත්: 0 / 7</div>
+        <div class="action-btns">
+            <button class="btn-view-all" onclick="openFoundGallery()">සියල්ල බලන්න</button>
+            <button class="btn-next" onclick="goToNextPage()">Next</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="galleryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>සොයාගත් ඡායාරූප</h3>
+                <span class="modal-close" onclick="closeFoundGallery()">&times;</span>
+            </div>
+            <div class="gallery-grid" id="modalGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTime = localStorage.getItem('musicCurrentTime');
+            if (savedTime) bgMusic.currentTime = parseFloat(savedTime);
+
+            if (localStorage.getItem('musicPlaying') === 'true') {
+                bgMusic.play().catch(() => {});
+            }
+
+            // මුලින්ම පළමු Photo එක දෙසට ආලෝකය යොමු කිරීම
+            const firstFrame = document.querySelector('.frame-item');
+            if (firstFrame) {
+                const rect = firstFrame.getBoundingClientRect();
+                updateLight(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            }
+        });
+
+        bgMusic.addEventListener('timeupdate', () => {
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+        });
+
+        function ensureMusicPlaying() {
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    localStorage.setItem('musicPlaying', 'true');
+                }).catch(() => {});
+            }
+        }
+
+        const room = document.getElementById('roomContainer');
+        const spotlight = document.getElementById('spotlight');
+        const lampPivot = document.getElementById('lampPivot');
+        const frames = document.querySelectorAll('.frame-item');
+        const counterBadge = document.getElementById('counterBadge');
+        const totalFrames = frames.length;
+        const discoveredFrames = new Set();
+
+        function handlePointer(e) {
+            ensureMusicPlaying();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            updateLight(clientX, clientY);
+        }
+
+        function updateLight(targetX, targetY) {
+            spotlight.style.left = targetX + 'px';
+            spotlight.style.top = targetY + 'px';
+
+            const lampRect = lampPivot.getBoundingClientRect();
+            const lampCenterX = lampRect.left + (lampRect.width * 0.75);
+            const lampCenterY = lampRect.top + (lampRect.height * 0.3);
+
+            const deltaX = targetX - lampCenterX;
+            const deltaY = targetY - lampCenterY;
+            const angleRad = Math.atan2(deltaY, deltaX);
+            const angleDeg = (angleRad * 180 / Math.PI) - 135;
+
+            lampPivot.style.transform = `rotate(${angleDeg}deg)`;
+
+            // Mobile Screen එකට ගැළපෙන ආවරණ අරය (Radius)
+            const lightRadius = Math.min(window.innerWidth * 0.32, 130);
+
+            frames.forEach(frame => {
+                const fRect = frame.getBoundingClientRect();
+                const frameCenterX = fRect.left + fRect.width / 2;
+                const frameCenterY = fRect.top + fRect.height / 2;
+
+                const dist = Math.hypot(targetX - frameCenterX, targetY - frameCenterY);
+
+                if (dist < lightRadius) {
+                    frame.classList.add('lit');
+                    discoveredFrames.add(frame.dataset.id);
+                } else {
+                    frame.classList.remove('lit');
+                }
+            });
+
+            counterBadge.innerText = `සොයාගත්: ${discoveredFrames.size} / ${totalFrames}`;
+        }
+
+        // Tap සහ Drag (Touch move) යන දෙකටම සහය දැක්වීම
+        room.addEventListener('click', handlePointer);
+        room.addEventListener('touchstart', handlePointer, { passive: true });
+        room.addEventListener('touchmove', handlePointer, { passive: true });
+
+        function openFoundGallery() {
+            ensureMusicPlaying();
+            const modal = document.getElementById('galleryModal');
+            const grid = document.getElementById('modalGrid');
+            grid.innerHTML = '';
+
+            if (discoveredFrames.size === 0) {
+                grid.innerHTML = '<p style="grid-column: span 2; text-align: center; font-size: 12px; color: #aaa; margin: 20px 0;">තවම කිසිදු ඡායාරූපයක් සොයාගෙන නැත. තිරය මත අත ගෙන ගොස් ලයිට් එක යොමු කරන්න! 🔦</p>';
+            } else {
+                frames.forEach(frame => {
+                    if (discoveredFrames.has(frame.dataset.id)) {
+                        const img = frame.querySelector('img');
+                        const div = document.createElement('div');
+                        div.className = 'gallery-item';
+                        div.innerHTML = `<img src="${img.src}" alt="Found Photo">`;
+                        grid.appendChild(div);
+                    }
+                });
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeFoundGallery() {
+            document.getElementById('galleryModal').style.display = 'none';
+        }
+
+        function goToNextPage() {
+            ensureMusicPlaying();
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+            localStorage.setItem('musicPlaying', 'true');
+
+            const transitionOverlay = document.getElementById('transitionOverlay');
+            const heartIcons = ['❤️', '💖', '💕', '💓', '💗'];
+            const totalBurstHearts = 65;
+
+            for (let i = 0; i < totalBurstHearts; i++) {
+                const tHeart = document.createElement('div');
+                tHeart.classList.add('transition-heart');
+                tHeart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                tHeart.style.left = (Math.random() * 100) + 'vw';
+                tHeart.style.fontSize = (Math.random() * 32 + 24) + 'px';
+                tHeart.style.animationDelay = (Math.random() * 0.5) + 's';
+                tHeart.style.animationDuration = (Math.random() * 0.4 + 1.2) + 's';
+                transitionOverlay.appendChild(tHeart);
+            }
+
+            setTimeout(() => {
+                window.location.href = "06.html";
+            }, 1400);
+        }
+    </script>
+
+</body>
+</html>

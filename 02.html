@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Senu...</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            overflow: hidden;
+            perspective: 1200px;
+            touch-action: manipulation;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+
+        /* 1. සුළඟට සෙමින් පැද්දෙන පසුබිම (Gentle Wind Ambient Sway) */
+        .wind-bg {
+            position: fixed;
+            top: -5%;
+            left: -5%;
+            width: 110vw;
+            height: 110vh;
+            background-image: url('3.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            animation: windDriftBg 16s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        @keyframes windDriftBg {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+            50% {
+                transform: scale(1.04) translate(-1.5%, 1%);
+            }
+            100% {
+                transform: scale(1.02) translate(1.5%, -1%);
+            }
+        }
+
+        /* 2. සුළඟට පාවෙන කොළ සහ පොත් පිටු (Drifting Leaves & Book Pages) */
+        .breeze-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .leaf-page {
+            position: absolute;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0;
+            animation: windDriftParticles 7.5s linear forwards;
+        }
+
+        @keyframes windDriftParticles {
+            0% {
+                opacity: 0;
+                transform: translate(-10vw, 0) rotate(0deg) scale(0.6);
+            }
+            15% {
+                opacity: 0.85;
+            }
+            50% {
+                opacity: 0.9;
+                transform: translate(50vw, -12vh) rotate(180deg) scale(1);
+            }
+            85% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(110vw, 6vh) rotate(360deg) scale(0.75);
+            }
+        }
+
+        /* Heart Transition Fullscreen Overlay */
+        .page-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99999;
+            overflow: hidden;
+        }
+
+        .transition-heart {
+            position: absolute;
+            bottom: -70px;
+            user-select: none;
+            animation: burstUpSlow 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes burstUpSlow {
+            0% {
+                transform: translateY(0) scale(0.6);
+                opacity: 0.2;
+            }
+            25% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-125vh) scale(2.6);
+                opacity: 1;
+            }
+        }
+
+        /* 3. මැද ඇති Book Image එක සඳහා "Click Me" Attention / Wobble Animation එක */
+        .image-btn {
+            width: 90px;
+            height: 90px;
+            cursor: pointer;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+            z-index: 10;
+            animation: clickMeWobble 2.6s infinite ease-in-out;
+            transform-origin: center bottom;
+            transition: opacity 0.5s ease;
+        }
+
+        @keyframes clickMeWobble {
+            0%, 100% {
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+            15% {
+                transform: translateY(-8px) scale(1.08) rotate(-4deg);
+            }
+            25% {
+                transform: translateY(-8px) scale(1.08) rotate(4deg);
+            }
+            35% {
+                transform: translateY(-4px) scale(1.04) rotate(-2deg);
+            }
+            45% {
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+            70% {
+                transform: scale(1.06);
+                filter: drop-shadow(0 10px 22px rgba(255, 51, 102, 0.6));
+            }
+            80% {
+                transform: scale(1);
+                filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+            }
+        }
+
+        .image-btn:hover {
+            animation-play-state: paused;
+            transform: scale(1.15);
+        }
+
+        /* Click කළ විට Book එක පහළට බැස නොපෙනී යාම */
+        .image-btn.move-down {
+            animation: none !important;
+            transform: translateY(220px) scale(0.5) !important;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+        }
+
+        /* 4. Photo එක සහ පිටත ඇති Buttons අඩංගු Main Wrapper එක */
+        .card-wrapper {
+            display: none;
+            width: 85%;
+            max-width: 320px;
+            position: absolute;
+            z-index: 20;
+            animation: fadeInCard 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInCard {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 3D Flip Container එක */
+        .flip-container {
+            width: 100%;
+            height: min(440px, 60vh);
+            perspective: 1000px;
+        }
+
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+           
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .card-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 5. Photo එකෙන් එළියේ පහළින් ඇති බොත්තම් දෙක */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+            width: 100%;
+        }
+
+        .btn-flip {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            padding: 11px 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background 0.3s, transform 0.2s;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-flip:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.03);
+        }
+
+        .btn-next {
+            flex: 1;
+            background-color: #ff3366;
+            color: #ffffff;
+            border: none;
+            padding: 11px 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 14px rgba(255, 51, 102, 0.5);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-next:hover {
+            background-color: #e62055;
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+
+<body id="pageBody">
+
+    <!-- සුළඟට පැද්දෙන Background ස්තරය -->
+    <div class="wind-bg"></div>
+
+    <!-- සුළඟේ පාවෙන කොළ සහ පොත් පිටු -->
+    <div class="breeze-particles" id="breezeParticles"></div>
+
+    <!-- අඛණ්ඩ පසුබිම් සංගීතය -->
+    <audio id="bgMusic" src="H music.mp3" preload="auto" loop></audio>
+
+    <!-- Transition Hearts සඳහා Overlay එක -->
+    <div class="page-transition-overlay" id="transitionOverlay"></div>
+
+    <!-- 1. සෙලවෙමින් "මාව click කරන්න" යැයි අඟවන Main Book Image Button එක -->
+    <img src="book.png" alt="Book" class="image-btn" id="bookImg" onclick="openPhotoCard()">
+
+    <!-- 2. Photo එක සහ පහළින් පිටත ඇති Buttons -->
+    <div class="card-wrapper" id="cardWrapper">
+        <div class="flip-container">
+            <div class="flip-inner" id="cardInner">
+                <!-- ඉදිරිපස Photo එක -->
+                <div class="card-face card-front">
+                    <img src="page E.png" alt="Photo 2" class="card-photo">
+                </div>
+
+                <!-- පසුපස Photo එක -->
+                <div class="card-face card-back">
+                    <img src="page S.png" alt="Photo 3" class="card-photo">
+                </div>
+            </div>
+        </div>
+
+        <!-- Photo එකෙන් පිටත පහළින් ඇති බොත්තම් දෙක -->
+        <div class="btn-group">
+            <button class="btn-flip" id="flipBtn" onclick="toggleFlip()">Sinhala</button>
+            <button class="btn-next" onclick="goToNextPage()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+
+        // පිටු අතර Music එක බාධාවකින් තොරව ගෙන යාම
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTime = localStorage.getItem('musicCurrentTime');
+            if (savedTime) bgMusic.currentTime = parseFloat(savedTime);
+
+            if (localStorage.getItem('musicPlaying') === 'true') {
+                bgMusic.play().catch(() => {});
+            }
+
+            startBreezeParticles();
+        });
+
+        bgMusic.addEventListener('timeupdate', () => {
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+        });
+
+        function ensureMusicPlaying() {
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    localStorage.setItem('musicPlaying', 'true');
+                }).catch(() => {});
+            }
+        }
+
+        // සුළඟේ පාවෙන කොළ සහ පොත් පිටු සජීවීව නිර්මාණය කිරීම
+        function startBreezeParticles() {
+            const container = document.getElementById('breezeParticles');
+            const items = ['🍃', '🍂', '📜', '📄', '✨', '🍃'];
+
+            setInterval(() => {
+                const item = document.createElement('div');
+                item.classList.add('leaf-page');
+                item.innerText = items[Math.floor(Math.random() * items.length)];
+
+                item.style.top = (Math.random() * 85 + 5) + 'vh';
+                item.style.fontSize = (Math.random() * 14 + 14) + 'px';
+                item.style.animationDuration = (Math.random() * 3 + 6) + 's';
+
+                container.appendChild(item);
+
+                setTimeout(() => {
+                    item.remove();
+                }, 9000);
+            }, 700);
+        }
+
+        // පොත click කළ විට කාඩ්පත විවෘත කිරීම
+        function openPhotoCard() {
+            ensureMusicPlaying();
+            document.getElementById("bookImg").classList.add("move-down");
+            setTimeout(() => {
+                document.getElementById("cardWrapper").style.display = "block";
+            }, 300);
+        }
+
+        // Photo එක පෙරළීම (Flip)
+        function toggleFlip() {
+            ensureMusicPlaying();
+            const cardInner = document.getElementById("cardInner");
+            const flipBtn = document.getElementById("flipBtn");
+
+            cardInner.classList.toggle("is-flipped");
+
+            if (cardInner.classList.contains("is-flipped")) {
+                flipBtn.innerText = "English";
+            } else {
+                flipBtn.innerText = "Sinhala";
+            }
+        }
+
+        // 'Next' Click කළ විට සෙමින් Hearts පිරී ඉහළට ගොස් 03.html වෙත මාරු වීම
+        function goToNextPage() {
+            ensureMusicPlaying();
+            localStorage.setItem('musicCurrentTime', bgMusic.currentTime);
+            localStorage.setItem('musicPlaying', 'true');
+
+            const transitionOverlay = document.getElementById('transitionOverlay');
+            const heartIcons = ['❤️', '💖', '💕', '💓', '💗'];
+            const totalBurstHearts = 65;
+
+            for (let i = 0; i < totalBurstHearts; i++) {
+                const tHeart = document.createElement('div');
+                tHeart.classList.add('transition-heart');
+                tHeart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                tHeart.style.left = (Math.random() * 100) + 'vw';
+                tHeart.style.fontSize = (Math.random() * 32 + 24) + 'px';
+                tHeart.style.animationDelay = (Math.random() * 0.5) + 's';
+                tHeart.style.animationDuration = (Math.random() * 0.4 + 1.2) + 's';
+                transitionOverlay.appendChild(tHeart);
+            }
+
+            setTimeout(() => {
+                window.location.href = "03.html";
+            }, 1400);
+        }
+    </script>
+
+</body>
+</html>
